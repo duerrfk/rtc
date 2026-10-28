@@ -117,7 +117,8 @@ for frame in frames
     end
 end    
 
-m = Model(solver=GurobiSolver(Presolve=0))
+m = direct_model(Gurobi.Optimizer())
+set_optimizer_attribute(m, "Presolve", 0)
 
 # Binary variables for frames assignment.
 @variable(m, x[j=jobs, f=frames], Bin)
@@ -139,13 +140,15 @@ for frame in frames
     @constraint(m, sum(executiontimes[job]*x[job,frame] for job in jobs) <= framesize)
 end
 
-solve(m)
+optimize!(m)
 
-sol = getvalue(x)
-for job in jobs
-    for frame in frames
-        if sol[job,frame] == 1
-            println(string(job) * " -> " * string(frame));
+if has_values(m)
+    sol = value.(x)
+    for job in jobs
+        for frame in frames
+            if round(Int, sol[job,frame]) == 1
+                println(string(job) * " -> " * string(frame));
+            end
         end
     end
 end

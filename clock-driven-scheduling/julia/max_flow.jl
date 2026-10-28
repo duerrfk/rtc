@@ -38,7 +38,8 @@ t3ExecTime = 5
 
 framelength = 4
 
-m = Model(solver=GurobiSolver(Presolve=0))
+m = direct_model(Gurobi.Optimizer())
+set_optimizer_attribute(m, "Presolve", 0)
 
 ### For each source-to-job edge, define a variable.
 
@@ -172,23 +173,25 @@ m = Model(solver=GurobiSolver(Presolve=0))
 
 @objective(m, Max, xF1Sink + xF2Sink + xF3Sink + xF4Sink + xF5Sink)
 
-solve(m)
+optimize!(m)
 
-### Print splitting of flows
+if has_values(m)
+    ### Print splitting of flows
 
-println("J11F1 = " * string(getvalue(xJ11F1)))
-println("J12F2 = " * string(getvalue(xJ12F2)))
-println("J13F3 = " * string(getvalue(xJ13F3)))
-println("J14F4 = " * string(getvalue(xJ14F4)))
-println("J15F5 = " * string(getvalue(xJ15F5)))
+    println("J11F1 = " * string(value(xJ11F1)))
+    println("J12F2 = " * string(value(xJ12F2)))
+    println("J13F3 = " * string(value(xJ13F3)))
+    println("J14F4 = " * string(value(xJ14F4)))
+    println("J15F5 = " * string(value(xJ15F5)))
 
-println("J21F1 = " * string(getvalue(xJ21F1)))
-println("J22F3 = " * string(getvalue(xJ22F3)))
-println("J23F4 = " * string(getvalue(xJ23F4)))
-println("J24F5 = " * string(getvalue(xJ24F5)))
+    println("J21F1 = " * string(value(xJ21F1)))
+    println("J22F3 = " * string(value(xJ22F3)))
+    println("J23F4 = " * string(value(xJ23F4)))
+    println("J24F5 = " * string(value(xJ24F5)))
 
-println("J31F1 = " * string(getvalue(xJ31F1)))
-println("J31F2 = " * string(getvalue(xJ31F2)))
-println("J31F3 = " * string(getvalue(xJ31F3)))
-println("J31F4 = " * string(getvalue(xJ31F4)))
-println("J31F5 = " * string(getvalue(xJ31F5)))
+    println("J31F1 = " * string(value(xJ31F1)))
+    println("J31F2 = " * string(value(xJ31F2)))
+    println("J31F3 = " * string(value(xJ31F3)))
+    println("J31F4 = " * string(value(xJ31F4)))
+    println("J31F5 = " * string(value(xJ31F5)))
+end

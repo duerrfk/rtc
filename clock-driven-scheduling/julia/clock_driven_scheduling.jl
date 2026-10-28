@@ -79,7 +79,8 @@ executiontimes = Dict(
     :J32 => 4,
 )
 
-m = Model(solver=GurobiSolver(Presolve=0))
+m = direct_model(Gurobi.Optimizer())
+set_optimizer_attribute(m, "Presolve", 0)
 
 # Variables for job start times.
 @variable(m, x[j=jobs])
@@ -114,9 +115,11 @@ for j1 in jobs
     end
 end
 
-solve(m)
+optimize!(m)
 
-sol = getvalue(x)
-for job in jobs
-    println(string(job) * " -> " * string(sol[job]));
+if has_values(m)
+    sol = value.(x)
+    for job in jobs
+        println(string(job) * " -> " * string(sol[job]));
+    end
 end
